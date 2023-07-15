@@ -12,7 +12,6 @@ import com.driver.repository.DriverRepository;
 import com.driver.repository.TripBookingRepository;
 import com.driver.model.TripStatus;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -54,7 +53,7 @@ public class CustomerServiceImpl implements CustomerService {
 		});
 		boolean driverFound=false;
 		for(Driver ele:driverList){
-			if(ele.getCab().isAvailable()){
+			if(ele.getCab().getAvailable()){
 				Optional<Customer> optionalCustomer=customerRepository2.findById(customerId);
 				Customer customer=optionalCustomer.get();
 

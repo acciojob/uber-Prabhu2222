@@ -45,18 +45,20 @@ public class CustomerServiceImpl implements CustomerService {
 	public TripBooking bookTrip(int customerId, String fromLocation, String toLocation, int distanceInKm) throws Exception{
 		//Book the driver with lowest driverId who is free (cab available variable is Boolean.TRUE). If no driver is available, throw "No cab available!" exception
 		//Avoid using SQL query
-		Optional<Customer> optionalCustomer=customerRepository2.findById(customerId);
-		List<Driver> driverList=driverRepository2.findAll();
-		if(driverList==null||driverList.size()==0)throw new Exception("No cab available!");
-		Collections.sort(driverList,(d1,d2)->{
-			if(d1.getDriverId()>d2.getDriverId()) return 1;
-			else if(d1.getDriverId()<d2.getDriverId()) return -1;
-			else return 0;
-		});
-		boolean driverFound=false;
-		for(Driver ele:driverList){
-			if(ele.getCab().getAvailable()){
 
+
+
+        Driver driver=null;
+		List<Driver> driverList=driverRepository2.findAll();
+		for(Driver driver1:driverList){
+			if(driver1.getCab().getAvailable()==true){
+				if(driver==null || driver.getDriverId()>driver1.getDriverId()){
+					driver=driver1;
+				}
+			}
+		}
+		if(driver==null) throw new Exception("No cab available!");
+				Optional<Customer> optionalCustomer=customerRepository2.findById(customerId);
 				Customer customer=optionalCustomer.get();
 
 				TripBooking tripBooking=new TripBooking();
@@ -69,8 +71,8 @@ public class CustomerServiceImpl implements CustomerService {
 //				int totalPrice=rate*distanceTravelled;
 //				tripBooking.setBill(totalPrice);
 				//set cab available to false of the coresponding driver
-				ele.getCab().setAvailable(false);
-				tripBooking.setDriver(ele);
+				driver.getCab().setAvailable(false);
+				tripBooking.setDriver(driver);
 				tripBooking.setCustomer(customer);
 				tripBooking.setStatus(TripStatus.CONFIRMED);
 
@@ -78,18 +80,16 @@ public class CustomerServiceImpl implements CustomerService {
 				//first save it in the repo of tripbooking then, save it to parent
 
 				TripBooking savedTripBooking=tripBookingRepository2.save(tripBooking);
-				ele.getTripBookingList().add(savedTripBooking);
-				driverRepository2.save(ele);
+				driver.getTripBookingList().add(savedTripBooking);
+				driverRepository2.save(driver);
 				customer.getTripBookingList().add(savedTripBooking);
 				customerRepository2.save(customer);
 
-				driverFound=true;
-
 				return savedTripBooking;
-			}
 
-		}
-		throw new Exception("No cab available!");
+
+
+
 
 	}
 

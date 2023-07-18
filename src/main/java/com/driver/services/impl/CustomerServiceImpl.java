@@ -47,6 +47,7 @@ public class CustomerServiceImpl implements CustomerService {
 		//Avoid using SQL query
 		Optional<Customer> optionalCustomer=customerRepository2.findById(customerId);
 		List<Driver> driverList=driverRepository2.findAll();
+		if(driverList==null||driverList.size()==0)throw new Exception("No cab available!");
 		Collections.sort(driverList,(d1,d2)->{
 			if(d1.getDriverId()>d2.getDriverId()) return 1;
 			else if(d1.getDriverId()<d2.getDriverId()) return -1;
